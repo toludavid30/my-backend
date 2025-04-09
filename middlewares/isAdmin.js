@@ -1,13 +1,8 @@
-const user = {
-    name: "John Doe",
-    isLoggedIn: true,
-    role: "user"
-};
 
 const isAdmin = (req, res, next) => {
-    if(user.role !== "admin"){
+    if(req.user.role !== "admin"){
     res.status(401).json({
-        status: 'error',
+       status: 'error',
         message: 'user not authorized'
     })
     return
