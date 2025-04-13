@@ -1,4 +1,5 @@
 const productModel = require('../models/products')
+const { options } = require('../routers/auth')
 
 const addProducts = async(req, res) =>{
     try {
@@ -96,6 +97,37 @@ const updateSingleProduct = async(req, res) =>{
     }
     catch(error){
         console.log(error);
+    }
+}
+
+const searchorFilter = async(req,res) =>{
+        const {keyword, minPrice, maxPrice} = req.query
+        let query = {}
+        if(keyword){
+            query.$or =[{name: {$regex:keyword, $options:'i'}},{category: {$regex:keyword, $options:'i'}}, {description: {$regex:keyword, $options:'i'}}]
+        }
+        if(minPrice){
+            query.price = {$gte: minPrice}
+        }
+        if(maxPrice){
+            query.price = {$lte: maxPrice}
+        }
+    try {
+        let products = await productModel.find(query)
+        if(!products){
+            res.status(400).json({
+                status: 'error',
+                message: 'products not found'
+            })
+        }
+        res.status(200).json({
+            status: 'success',
+            message: 'products found',
+            products
+        })
+    } catch (error) {
+        console.log(error);
+        
     }
 }
 

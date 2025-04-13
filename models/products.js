@@ -13,6 +13,10 @@ const productSchema = new mongoose.Schema({
         type: String,
         required : true,
         unique: [true, 'id is required']
+    },
+    description : {
+        type: String,
+        required : [true, 'description is required']
     }
     
 })
