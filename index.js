@@ -7,6 +7,10 @@ const cors = require('cors')
 
 const userRouter = require('./routers/auth.js')
 const productRouter = require('./routers/addProd.js');
+const transporter = require('./Services/nodemailer/transporter.js')
+const sendTestMail = require('./Services/nodemailer/testSendEmail.js')
+sendTestMail()
+
 // const getProductsRouter = require('./routers/getProd.js');
 // const productRouter = require('./routes/products.js')
 // const userRouter = require('./routes/users.js')
