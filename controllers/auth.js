@@ -3,6 +3,8 @@ const blackListModel = require('../models/blackListTokens')
 const bcrypt = require('bcryptjs')
 const _jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
+const generateRandomString = require('../Utils/genRandomStrings')
+const sendVerificationEmail = require('../Services/nodemailer/sendVerificationEmail')
 
 
 const signUp = async (req,res) =>{
@@ -10,19 +12,27 @@ const signUp = async (req,res) =>{
         const {password} = req.body
         const salt = await bcrypt.genSalt(10)
         const hashPassword = await bcrypt.hash(password, salt)
-        const user = await userModel.create({...req.body, password: hashPassword})
+        // generate verification token
+        const verificationToken = generateRandomString(10)
+        // generate verification expiration time
+        const verificationExp = Date.now() + 60000 
+        const user = await userModel.create({...req.body, password: hashPassword, verificationToken, verificationExp})
         if(!user){
             res.status(400).json({
                 status: 'error',
                 message: 'user not created'
             })
+        }else{
+            sendVerificationEmail(user.email,verificationToken, user.name)
+
+            res.status(201).json({
+                status:'staus',
+                message : 'User created successfully.',
+                user
+            })
         }
-        res.status(201).json({
-            status:'staus',
-            message : 'User created successfully.',
-            user
-        })
     } catch (error) {
+        
         console.log(error);
         
     }
@@ -139,6 +149,34 @@ const updateSingleUser = async(req, res) =>{
     }
 }
 
+const verifyEmail = async (req, res) => {
+    const {token} = req.body
+    try {
+        const user = await userModel.findOne({verificationToken: token})
+        if(!user){
+            res.status(400).json({
+                status: 'error',
+                message: 'user not found'
+            })
+        }
+        if(user.verificationExp < Date.now()){
+            res.status(400).json({
+                status: 'error',
+                message: 'token expired'
+            })
+        }
+        // update user to verified
+        updatedUser = await userModel.findByIdAndUpdate(user._id, {isVerified: true, verificationToken : undefined, verificationExp : undefined})
+        res.status(200).json({
+            status: 200,
+            message: 'user verified successfully'
+        })
+    } catch (error) {
+        console.log(error); 
+    }
+}
+
+
 const isLoggedOut = async (req, res) => {
     const {token} = req.body
     try {
@@ -152,5 +190,5 @@ const isLoggedOut = async (req, res) => {
     }
 }
 
-module.exports = {signUp, getAllUsers, getSingleUser,deleteSingleUser, updateSingleUser, signIn, isLoggedOut}
+module.exports = {signUp, getAllUsers, getSingleUser,deleteSingleUser, updateSingleUser, signIn, verifyEmail, isLoggedOut}
 
