@@ -7,7 +7,7 @@ const generateRandomString = require('../Utils/genRandomStrings')
 const sendVerificationEmail = require('../Services/nodemailer/sendVerificationEmail')
 
 
-const signUp = async (req,res) =>{
+const signUp = async (req, res, next) =>{
     try {
         const {password} = req.body
         const salt = await bcrypt.genSalt(10)
@@ -32,9 +32,8 @@ const signUp = async (req,res) =>{
             })
         }
     } catch (error) {
-        
-        console.log(error);
-        
+        // console.log(error);
+        next(error) 
     }
 }
 
@@ -88,7 +87,7 @@ const getAllUsers = async(req, res) =>{
         console.log(error);
     }
 }
-const getSingleUser = async(req, res) =>{
+const getSingleUser = async(req, res, next) =>{
     try{
         const {userId} = req.params
         let users = await userModel.findById(userId)
@@ -105,7 +104,7 @@ const getSingleUser = async(req, res) =>{
         })
     }
     catch(error){
-        console.log(error);
+        next(error)
     }
 }
 const deleteSingleUser = async(req, res) =>{
@@ -137,7 +136,7 @@ const updateSingleUser = async(req, res) =>{
                 status: 'error',
                 message: 'users not found'
             })
-        }
+        }   
         res.status(200).json({
             status: 'success',
             message: 'users found',
@@ -166,7 +165,7 @@ const verifyEmail = async (req, res) => {
             })
         }
         // update user to verified
-        updatedUser = await userModel.findByIdAndUpdate(user._id, {isVerified: true, verificationToken : undefined, verificationExp : undefined})
+       const updatedUser = await userModel.findByIdAndUpdate(user._id, {isVerified: true, verificationToken : undefined, verificationExp : undefined})
         res.status(200).json({
             status: 200,
             message: 'user verified successfully'

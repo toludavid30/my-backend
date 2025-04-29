@@ -7,7 +7,8 @@ const cors = require('cors')
 
 const userRouter = require('./routers/auth.js')
 const productRouter = require('./routers/addProd.js');
-const transporter = require('./Services/nodemailer/transporter.js')
+const transporter = require('./Services/nodemailer/transporter.js');
+const errorHandler = require('./middlewares/errorHandler.js');
 // const sendTestMail = require('./Services/nodemailer/testSendEmail.js')
 // sendTestMail()
 
@@ -29,10 +30,16 @@ app.use('/api/auth', userRouter)
 // app.use('/api/auth', productRouter)
 app.use('/api/products', productRouter)
 
-// app.use('/api/products', productRouter)
-// app.use('/api/users', userRouter)
 
+app.all("*", (req, res) => {
+    res.status(404).json(
+        `${req.method} ${req.originalUrl} does not exist`
+    )
+})
 
+// app.use("/{*any}", errorHandler)
+
+app.use("*", errorHandler)
 
 
 
