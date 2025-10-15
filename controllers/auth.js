@@ -60,7 +60,6 @@ const signIn = async (req,res) =>{
             message: 'user logged in successfully',
             token
         })
-
         // res.cookie('token', token, {httpOnly: true, secure: false, sameSite: 'strict'})
     }
     catch(error){

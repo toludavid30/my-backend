@@ -5,20 +5,21 @@ const productSchema = new mongoose.Schema({
         type: String,
         required : [true, 'name is required']
     },
-    type : {
+    productImage:{
         type: String,
-        required : [true, 'type is required']
     },
     id:{
         type: String,
         required : true,
         unique: [true, 'id is required']
     },
-    description : {
+    category:{
         type: String,
-        required : [true, 'description is required']
-    }
-    
+        required : [true, 'type is required']
+    },
+    price : {
+        type: String,
+        required : [true, 'price is required']}
 })
 
     const productModel = mongoose.model('products', productSchema)

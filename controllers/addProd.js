@@ -2,8 +2,14 @@ const productModel = require('../models/products')
 const { options } = require('../routers/auth')
 
 const addProducts = async(req, res) =>{
+    if(!req.file){
+        res.status(400).json({
+            message: 'no image provided'
+        })
+    }
+    const image = req.file.path
     try {
-    let products = await productModel.create(req.body)
+    let products = await productModel.create({...req.body, productImage: image})
     if(!products){
         res.status(400).json({
             status: 'error',
